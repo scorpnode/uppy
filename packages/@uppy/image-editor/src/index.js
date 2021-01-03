@@ -2,6 +2,7 @@ const { Plugin } = require('@uppy/core')
 const Editor = require('./Editor')
 const Translator = require('@uppy/utils/lib/Translator')
 const { h } = require('preact')
+const imageConversion = require("image-conversion")
 
 module.exports = class ImageEditor extends Plugin {
   static VERSION = require('../package.json').version
@@ -92,10 +93,13 @@ module.exports = class ImageEditor extends Plugin {
 
   save = (blob) => {
     const { currentImage } = this.getPluginState()
-
+ imageConversion.compressAccurately(blob,25).then(blobNew=>{
+    //The res in the promise is a compressed Blob type (which can be treated as a File type) file;
+ 
+ 
     this.uppy.setFileState(currentImage.id, {
-      data: blob,
-      size: blob.size,
+      data: blobNew,
+      size: blobNew.size,
       preview: null
     })
 
@@ -105,6 +109,7 @@ module.exports = class ImageEditor extends Plugin {
       currentImage: updatedFile
     })
     this.uppy.emit('file-editor:complete', updatedFile)
+    })
   }
 
   selectFile = (file) => {
